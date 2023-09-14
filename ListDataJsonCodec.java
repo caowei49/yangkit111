@@ -19,14 +19,14 @@ public class ListDataJsonCodec extends YangDataJsonCodec<YangList, ListData> {
     protected ListDataJsonCodec(YangList schemaNode) {
         super(schemaNode);
     }
-    
+
     @Override
     protected ListData buildData(JsonNode element, ValidatorResultBuilder validatorResultBuilder) {
         //key
         List<LeafData> keyDataList = new ArrayList<>();
         List<Leaf> keys = getSchemaNode().getKey().getkeyNodes();
         for(Leaf key:keys){
-            JsonNode keyElement = null;
+            JsonNode keyElement = element.get(key.getArgStr());
             if(keyElement == null){
                 ValidatorRecordBuilder<String, JsonNode> recordBuilder = new ValidatorRecordBuilder<>();
                 recordBuilder.setErrorTag(ErrorTag.MISSING_ELEMENT);
@@ -78,9 +78,9 @@ public class ListDataJsonCodec extends YangDataJsonCodec<YangList, ListData> {
                 }
                 YangDataJsonCodec jsonCodec = getInstance(childDatum.getSchemaNode());
                 JsonNode childElement = jsonCodec.serialize(childDatum);
-                QName childElementQName = childDatum.getQName();
+                String moduleName = childDatum.getSchemaNode().getContext().getCurModule().getMainModule().getArgStr();
 
-                ((ObjectNode)element).put(childDatum.getQName().getQualifiedName(),childElement);
+                ((ObjectNode)element).put(moduleName+":"+childDatum.getQName().getLocalName(),childElement);
 
             }
         }
